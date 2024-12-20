@@ -1,0 +1,57 @@
+name: 'dbt_layer_guardian'
+version: '1.0.0'
+config-version: 2
+profile: 'dbt_layer_guardian'
+
+target-path: "target"  # directory which will store compiled SQL files
+clean-targets:         # directories to be removed by `dbt clean`
+    - "target"
+    - "dbt_packages"
+    - "dbt_modules"
+
+vars:
+  dbt_layer_guardian:
+    layer_definitions:
+      - path: "core/application"
+        layer_name: "application"
+      - path: "core/service"
+        layer_name: "service"
+      - path: "core/stub"
+        layer_name: "stub"
+      - path: "core/component"
+        layer_name: "component"
+      - path: "mainline/domain"
+        layer_name: "domain"
+      - path: "mainline/base"
+        layer_name: "base"
+      - path: "mainline/gateway"
+        layer_name: "gate"
+
+    # モデルの監視対象となるレイヤー名を定義します。
+    # このリストに含まれるレイヤー間での依存関係を監視します。
+    target_layer_names: 
+      - "gate"         # ゲートウェイ層
+      - "base"            # ベース層
+      - "composite_base"  # コンポジット層
+      - "domain"          # ドメイン層
+      - "service"         # サービス層
+      - "application"     # アプリケーション層
+
+    # レイヤー間の依存関係ルールを定義します。
+    # 上位のレイヤー（キー）を下位のレイヤー（値）が参照することを許可します。
+    layering_rules:
+      gate:
+        - "base"
+      base:
+        - "composite_base"
+        - "domain"
+      composite_base:
+        - "domain"
+      domain:
+        - "service"
+        - "application"
+      service:
+        - "service"
+        - "application"
+      application:
+        - "application"
