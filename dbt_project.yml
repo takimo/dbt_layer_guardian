@@ -12,46 +12,27 @@ clean-targets:         # directories to be removed by `dbt clean`
 vars:
   dbt_layer_guardian:
     layer_definitions:
-      - path: "core/application"
-        layer_name: "application"
-      - path: "core/service"
-        layer_name: "service"
-      - path: "core/stub"
-        layer_name: "stub"
-      - path: "core/component"
-        layer_name: "component"
-      - path: "mainline/domain"
-        layer_name: "domain"
-      - path: "mainline/base"
-        layer_name: "base"
-      - path: "mainline/gateway"
-        layer_name: "gate"
+      - path: "staging"
+        layer_name: "staging"
+      - path: "intermediate"
+        layer_name: "intermediate"
+      - path: "marts"
+        layer_name: "marts"
 
     # モデルの監視対象となるレイヤー名を定義します。
     # このリストに含まれるレイヤー間での依存関係を監視します。
     target_layer_names: 
-      - "gate"         # ゲートウェイ層
-      - "base"            # ベース層
-      - "composite_base"  # コンポジット層
-      - "domain"          # ドメイン層
-      - "service"         # サービス層
-      - "application"     # アプリケーション層
+      - "staging"         
+      - "intermediate"         
+      - "marts"
 
     # レイヤー間の依存関係ルールを定義します。
     # 上位のレイヤー（キー）を下位のレイヤー（値）が参照することを許可します。
     layering_rules:
-      gate:
-        - "base"
-      base:
-        - "composite_base"
-        - "domain"
-      composite_base:
-        - "domain"
-      domain:
-        - "service"
-        - "application"
-      service:
-        - "service"
-        - "application"
-      application:
-        - "application"
+      staging:
+        - "intermediate"
+        - "marts"
+      intermediate:
+        - "marts"
+      marts:
+        - "marts"
